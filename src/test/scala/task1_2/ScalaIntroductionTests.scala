@@ -1,4 +1,4 @@
-package task1
+package task1_2
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers.convertToAnyShouldWrapper
@@ -30,5 +30,18 @@ class ScalaIntroductionTests extends FunSuite {
     scalaIntroduction.fibo(3) shouldBe 2
     scalaIntroduction.fibo(8) shouldBe 21
     scalaIntroduction.fibo(20) shouldBe 6765
+  }
+
+  test("Test task 2 a: create thread with simple counter") {
+    var counter = 0
+    def count(): Unit = {
+      for (_ <- 1 to 1000)
+        counter += 1
+    }
+
+    val t1 = scalaIntroduction.createThread(count)
+    t1.start()
+    t1.join()
+    counter shouldBe 1000
   }
 }

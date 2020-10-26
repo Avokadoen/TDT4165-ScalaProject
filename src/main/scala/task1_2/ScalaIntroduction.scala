@@ -1,4 +1,4 @@
-package task1
+package task1_2
 
 import scala.annotation.tailrec
 
@@ -55,5 +55,10 @@ class ScalaIntroduction {
     }
 
     fibo(n - 1) + fibo(n - 2)
+  }
+
+  // Task 2 a
+  def createThread(task: () => Unit): Thread = {
+    new Thread(() => task())
   }
 }
