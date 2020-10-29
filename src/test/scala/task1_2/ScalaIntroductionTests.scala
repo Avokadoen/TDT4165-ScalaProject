@@ -39,7 +39,7 @@ class ScalaIntroductionTests extends FunSuite {
         counter += 1
     }
 
-    val t1 = scalaIntroduction.createThread(count)
+    val t1 = new Task2().createThread(count)
     t1.start()
     t1.join()
     counter shouldBe 1000
