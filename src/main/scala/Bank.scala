@@ -3,19 +3,29 @@ class Bank(val allowedAttempts: Integer = 3) {
     private val transactionsQueue: TransactionQueue = new TransactionQueue()
     private val processedTransactions: TransactionQueue = new TransactionQueue()
 
-    def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = ???
-                                                // TODO
-                                                // project task 2
-                                                // create a new transaction object and put it in the queue
-                                                // spawn a thread that calls processTransactions
+    def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = {
+        val t = new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
+        transactionsQueue.push(t)
+        val thread = new Thread {
+            override def run() = processTransactions
+        }
+        thread.start
+    }
 
-    private def processTransactions: Unit = ???
-                                                // TOO
-                                                // project task 2
-                                                // Function that pops a transaction from the queue
-                                                // and spawns a thread to execute the transaction.
-                                                // Finally do the appropriate thing, depending on whether
-                                                // the transaction succeeded or not
+    private def processTransactions: Unit = {
+        val t = transactionsQueue.pop
+        /* val thread = new Thread(t)
+        thread.start        // TODO Need to spawn thread here?? But it aint work :<
+        thread.join */
+        t.run
+        if (t.status == TransactionStatus.PENDING) {
+            transactionsQueue.push(t)
+            processTransactions
+        }
+        else {
+            processedTransactions.push(t)
+        }
+    }
 
     def addAccount(initialBalance: Double): Account = {
         new Account(this, initialBalance)

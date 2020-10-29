@@ -9,10 +9,8 @@ class AccountTests extends FunSuite {
     val acc    = new Account(bank, 500)
     val result = acc.withdraw(250)
     assert(acc.getBalanceAmount == 250)
-    // assert(result.isLeft)
-    assert(false) // To remind me to uncomment
+    assert(result.isLeft)
   }
-/*
 
   test("Test 02: Invalid account withdrawal should throw exception") {
     val acc    = new Account(bank, 500)
@@ -41,7 +39,6 @@ class AccountTests extends FunSuite {
     assert(acc.getBalanceAmount == 500)
     assert(result.isRight)
   }
-*/
 
   test("Test 06: Correct balance amount after several withdrawals and deposits") {
     val acc   = new Account(bank, 50000)
