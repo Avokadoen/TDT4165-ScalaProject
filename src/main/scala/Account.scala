@@ -21,7 +21,7 @@ class Account(val bank: Bank, initialBalance: Double) {
 
     def getBalanceAmount: Double = balance.synchronized(balance.amount)
 
-    def transferTo(account: Account, amount: Double) = {
+    def transferTo(account: Account, amount: Double): Unit = {
         bank addTransactionToQueue (this, account, amount)
     }
 

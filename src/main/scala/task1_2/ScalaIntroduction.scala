@@ -8,7 +8,7 @@ class ScalaIntroduction {
     val arrCount = 50
     val arr = new Array[Int](arrCount)
     for(i <- arr.indices) {
-      arr(i) = (i + 1)
+      arr(i) = i + 1
     }
 
     arr
