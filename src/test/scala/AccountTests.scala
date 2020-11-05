@@ -43,22 +43,22 @@ class AccountTests extends FunSuite {
   test("Test 06: Correct balance amount after several withdrawals and deposits") {
     val acc   = new Account(bank, 50000)
     val first = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         acc.withdraw(10); Thread.sleep(10)
       }
     }
     val second = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         acc.deposit(5); Thread.sleep(20)
       }
     }
     val third = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         acc.withdraw(50); Thread.sleep(10)
       }
     }
     val fourth = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         acc.deposit(100); Thread.sleep(10)
       }
     }
@@ -131,12 +131,12 @@ class AccountTransferTests extends FunSuite {
     val acc1 = new Account(bank, 3000)
     val acc2 = new Account(bank, 5000)
     val first = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         bank addTransactionToQueue(acc1, acc2, 30)
       }
     }
     val second = Main.thread {
-      for (i <- 0 until 100) {
+      for (_ <- 0 until 100) {
         bank addTransactionToQueue(acc2, acc1, 23)
       }
     }
@@ -153,15 +153,15 @@ class AccountTransferTests extends FunSuite {
 
   test("Test 11: Failed transactions should retry and potentially succeed with multiple allowed attempts") {
     var failed = 0
-    for (x <- 1 to 100) {
+    for (_ <- 1 to 100) {
       val bank = new Bank(allowedAttempts = 3)
 
       val acc1 = new Account(bank, 100)
       val acc2 = new Account(bank, 100)
       val acc3 = new Account(bank, 100)
 
-      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
-      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
+      for (_ <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (_ <- 1 to 2) { acc3 transferTo (acc1, 50) }
 
       while (bank.getProcessedTransactionsAsList.size != 8) {
         Thread.sleep(100)
@@ -177,15 +177,15 @@ class AccountTransferTests extends FunSuite {
 
   test("Test 12: Some transactions should be stopped with only one allowed attempt") {
     var failed = 0
-    for (x <- 1 to 100) {
+    for (_ <- 1 to 100) {
       val bank = new Bank(allowedAttempts = 1)
 
       val acc1 = new Account(bank, 100)
       val acc2 = new Account(bank, 100)
       val acc3 = new Account(bank, 100)
 
-      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
-      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
+      for (_ <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (_ <- 1 to 2) { acc3 transferTo (acc1, 50) }
 
       while (bank.getProcessedTransactionsAsList.size != 8) {
         Thread.sleep(100)

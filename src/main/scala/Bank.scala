@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 class Bank(val allowedAttempts: Integer = 3) {
 
     private val transactionsQueue: TransactionQueue = new TransactionQueue()
@@ -6,24 +8,23 @@ class Bank(val allowedAttempts: Integer = 3) {
     def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = {
         val t = new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
         transactionsQueue.push(t)
-        val thread = new Thread {
-            override def run() = processTransactions
-        }
-        thread.start
+        val thread = new Thread(() => processTransactions())
+
+        thread.start()
     }
 
-    private def processTransactions: Unit = {
-        val t = transactionsQueue.pop
-        /* val thread = new Thread(t)
-        thread.start        // TODO Need to spawn thread here?? But it aint work :<
-        thread.join */
-        t.run
-        if (t.status == TransactionStatus.PENDING) {
-            transactionsQueue.push(t)
-            processTransactions
+    @tailrec
+    private def processTransactions(): Unit = {
+        val transaction = transactionsQueue.pop
+
+        transaction.run()
+
+        if (transaction.status == TransactionStatus.PENDING) {
+            transactionsQueue.push(transaction)
+            processTransactions()
         }
         else {
-            processedTransactions.push(t)
+            processedTransactions.push(transaction)
         }
     }
 
