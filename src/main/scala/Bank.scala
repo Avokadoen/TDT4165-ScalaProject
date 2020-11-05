@@ -5,14 +5,24 @@ class Bank(val allowedAttempts: Integer = 3) {
     private val transactionsQueue: TransactionQueue = new TransactionQueue()
     private val processedTransactions: TransactionQueue = new TransactionQueue()
 
+    /**
+     * @param from   the account we are withdrawing money from
+     * @param to     the account that recieves withdrawn money
+     * @param amount the amount we want to transfer
+     */
     def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = {
-        val t = new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
-        transactionsQueue.push(t)
-        val thread = new Thread(() => processTransactions())
+        // create a transaction
+        val transaction = new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
+        transactionsQueue.push(transaction)
 
-        thread.start()
+        // process the transaction in another thread
+        new Thread(() => processTransactions()).start()
     }
 
+    /**
+     * Process the first transaction in the queue, if it completes it will be put in the 'processedTransactions'
+     * queue, otherwise we push it in the 'transactionsQueue' and attempts to process it further
+     */
     @tailrec
     private def processTransactions(): Unit = {
         val transaction = transactionsQueue.pop
