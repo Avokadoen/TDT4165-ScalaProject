@@ -46,22 +46,33 @@ class Transaction(val transactionsQueue: TransactionQueue,
 
     override def run(): Unit = {
 
-    def doTransaction(): Unit = this.synchronized {
-      from withdraw amount match {
-        case Left(a) =>
-          // Deposit can't fail here since withdraw can not return a negative value
-          to deposit a
-          status = TransactionStatus.SUCCESS
-        case Right(_) =>
-          attempt += 1
-          if (attempt >= allowedAttempts) status = TransactionStatus.FAILED
+      def doTransaction(): Unit = this.synchronized {
+        from.withdraw(amount) match {
+          case Left(_) => {
+            to.deposit(amount) match {
+              case Left(_) => status = TransactionStatus.SUCCESS
+              case Right(_) => {
+                from.deposit(amount)
+                if (attempt >= allowedAttempts) status = TransactionStatus.FAILED
+              }
+            }
+          }
+          case Right(_) => {
+            if (attempt >= allowedAttempts) status = TransactionStatus.FAILED
+          }
+        }
+      }
+
+      this.synchronized {
+        if (status == TransactionStatus.PENDING) {
+          if (attempt < allowedAttempts) {
+            attempt += 1
+            doTransaction
+            // Thread.sleep(50) // you might want this to make more room for
+            // new transactions to be added to the queue
+          }
+          else status = TransactionStatus.FAILED
+        }
       }
     }
-
-    if (status == TransactionStatus.PENDING && attempt < allowedAttempts) {
-      doTransaction()
-      Thread.sleep(50)   // you might want this to make more room for
-    }                    // new transactions to be added to the queue
-    else status = TransactionStatus.FAILED
-  }
 }

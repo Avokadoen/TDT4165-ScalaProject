@@ -16,25 +16,23 @@ class Bank(val allowedAttempts: Integer = 3) {
         transactionsQueue.push(transaction)
 
         // process the transaction in another thread
-        new Thread(() => processTransactions()).start()
+        Main.thread(processTransactions)
     }
 
     /**
      * Process the first transaction in the queue, if it completes it will be put in the 'processedTransactions'
      * queue, otherwise we push it in the 'transactionsQueue' and attempts to process it further
      */
-    @tailrec
     private def processTransactions(): Unit = {
-        val transaction = transactionsQueue.pop
-
-        transaction.run()
-
-        if (transaction.status == TransactionStatus.PENDING) {
-            transactionsQueue.push(transaction)
-            processTransactions()
-        }
-        else {
-            processedTransactions.push(transaction)
+        this.synchronized {
+            val transaction = transactionsQueue.pop
+            val thread = Main.thread(transaction.run)
+            thread.join
+            if (transaction.status == TransactionStatus.PENDING) {
+                transactionsQueue.push(transaction)
+                processTransactions
+            }
+            else processedTransactions.push(transaction)
         }
     }
 
