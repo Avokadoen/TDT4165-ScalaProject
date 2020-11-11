@@ -34,22 +34,19 @@ class Transaction(val transactionsQueue: TransactionQueue,
   var status: TransactionStatus.Value = TransactionStatus.PENDING
   var attempt = 0
 
-  override def run: Unit = {
+  override def run(): Unit = {
 
-    def doTransaction() = {
+    def doTransaction(): Unit = {
       from.withdraw(amount) match {
-        case Left(_) => {
+        case Left(_) =>
           to.deposit(amount) match {
             case Left(_) => status = TransactionStatus.SUCCESS
-            case Right(_) => {
+            case Right(_) =>
               from.deposit(amount) // should not be possible to get here
               if (attempt >= allowedAttempts) status = TransactionStatus.FAILED
-            }
           }
-        }
-        case Right(_) => {
+        case Right(_) =>
           if (attempt >= allowedAttempts) status = TransactionStatus.FAILED
-        }
       }
     }
 
@@ -57,7 +54,7 @@ class Transaction(val transactionsQueue: TransactionQueue,
       if (status == TransactionStatus.PENDING) {
         if (attempt < allowedAttempts) {
           attempt += 1
-          doTransaction
+          doTransaction()
           Thread.sleep(50) // you might want this to make more room for
           // new transactions to be added to the queue
         }

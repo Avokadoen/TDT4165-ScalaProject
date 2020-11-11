@@ -14,7 +14,7 @@ class Bank(val allowedAttempts: Integer = 3) {
         transactionsQueue.push(transaction)
 
         // process the transaction in another thread
-        Main.thread(processTransactions)
+        Main.thread(processTransactions())
     }
 
     /**
@@ -28,7 +28,7 @@ class Bank(val allowedAttempts: Integer = 3) {
             transaction.run
             if (transaction.synchronized(transaction.status == TransactionStatus.PENDING)) {
                 transactionsQueue.push(transaction)
-                processTransactions
+                processTransactions()
             }
             else processedTransactions.push(transaction)
         }
