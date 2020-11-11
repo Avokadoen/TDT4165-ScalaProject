@@ -1,3 +1,4 @@
+
 class Account(val bank: Bank, initialBalance: Double) {
 
     class Balance(var amount: Double) {}
@@ -6,7 +7,7 @@ class Account(val bank: Bank, initialBalance: Double) {
 
     /**
      * @param amount the amount that will be taken from the account
-     * @return Either the amount withdrawn from the account (left), or RuntimeException (right)
+     * @return Either the amount withdrawn from the account (left), or String message (right)
      */
     def withdraw(amount: Double): Either[Double, String] = this.synchronized {
         // if the amount in the account is insufficient
@@ -21,7 +22,7 @@ class Account(val bank: Bank, initialBalance: Double) {
 
     /**
      * @param amount the desired amount to store in this account
-     * @return Either the amount we stored in the account (left), or a IllegalAmountException (right)
+     * @return Either the amount we stored in the account (left), or a String message (right)
      */
     def deposit(amount: Double): Either[Double, String] = this.synchronized {
         // if the amount is of an illegal value
@@ -31,7 +32,7 @@ class Account(val bank: Bank, initialBalance: Double) {
         Left(amount)
     }
 
-    def getBalanceAmount: Double = balance.synchronized(balance.amount)
+    def getBalanceAmount: Double = this.synchronized(balance.amount)
 
     def transferTo(account: Account, amount: Double): Unit = {
         bank addTransactionToQueue(this, account, amount)

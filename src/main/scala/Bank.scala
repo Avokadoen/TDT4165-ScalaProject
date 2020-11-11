@@ -22,19 +22,6 @@ class Bank(val allowedAttempts: Integer = 3) {
      * queue, otherwise we push it in the 'transactionsQueue' and attempts to process it further
      */
     private def processTransactions(): Unit = this.synchronized {
-        /*
-        // SLOW af, but does not need sleep
-        val transaction = transactionsQueue.pop
-        val thread = Main.thread(transaction.run)
-        thread.join     // does not fail with this, and does not need the sleep in Transaction
-        // However just makes the thread obsolete anyway? Start thread, and wait for it to finish
-        if (transaction.synchronized(transaction.status == TransactionStatus.PENDING)) {
-            transactionsQueue.push(transaction)
-            processTransactions
-        }
-        else processedTransactions.push(transaction)
-         */
-
         // less slow, but needs sleep
         Main.thread {
             val transaction = transactionsQueue.pop
