@@ -1,6 +1,6 @@
 object task2 extends App {
   // Task 2: a)
-  def gibThread(f: => Unit): Thread = {
+  def makeThread(f: => Unit): Thread = {
     new Thread {
       override def run() = f
     }
@@ -17,9 +17,9 @@ object task2 extends App {
     println(counter)
   }
 
-  gibThread(increaseCounter()).start
-  gibThread(increaseCounter()).start
-  gibThread(printCounter()).start
+  makeThread(increaseCounter()).start
+  makeThread(increaseCounter()).start
+  makeThread(printCounter()).start
 
   // c)
   def betterIncreaseCounter(): Unit = counter.synchronized {
@@ -27,6 +27,32 @@ object task2 extends App {
   }
 
   // d)
-  // TODO make deadlock happen
+
+  object A {
+    lazy val a: Int = B.b
+    lazy val a1: Int = 1
+  }
+
+  object B {
+    lazy val b:Int = A.a1
+  }
+
+  /*
+  this.synchronized {
+    val thread1 = makeThread(A.a)
+    val thread2 = makeThread(B.b)
+
+    thread1.start
+    thread2.start
+  }
+  */
+
+  lazy val x: Int = {
+    val thread = makeThread(println(s"initializing $x"))
+    thread.start
+    thread.join
+    1
+  }
+  x
 
 }

@@ -14,7 +14,7 @@ class AccountTests extends FunSuite {
 
   test("Test 02: Invalid account withdrawal should throw exception") {
     val acc    = new Account(bank, 500)
-	  val result = acc.withdraw(750)
+    val result = acc.withdraw(750)
     assert(acc.getBalanceAmount == 500)
     assert(result.isRight)
   }
@@ -43,22 +43,22 @@ class AccountTests extends FunSuite {
   test("Test 06: Correct balance amount after several withdrawals and deposits") {
     val acc   = new Account(bank, 50000)
     val first = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         acc.withdraw(10); Thread.sleep(10)
       }
     }
     val second = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         acc.deposit(5); Thread.sleep(20)
       }
     }
     val third = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         acc.withdraw(50); Thread.sleep(10)
       }
     }
     val fourth = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         acc.deposit(100); Thread.sleep(10)
       }
     }
@@ -131,12 +131,12 @@ class AccountTransferTests extends FunSuite {
     val acc1 = new Account(bank, 3000)
     val acc2 = new Account(bank, 5000)
     val first = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         bank addTransactionToQueue(acc1, acc2, 30)
       }
     }
     val second = Main.thread {
-      for (_ <- 0 until 100) {
+      for (i <- 0 until 100) {
         bank addTransactionToQueue(acc2, acc1, 23)
       }
     }
@@ -153,15 +153,15 @@ class AccountTransferTests extends FunSuite {
 
   test("Test 11: Failed transactions should retry and potentially succeed with multiple allowed attempts") {
     var failed = 0
-    for (_ <- 1 to 100) {
+    for (x <- 1 to 100) {
       val bank = new Bank(allowedAttempts = 3)
 
       val acc1 = new Account(bank, 100)
       val acc2 = new Account(bank, 100)
       val acc3 = new Account(bank, 100)
 
-      for (_ <- 1 to 6) { acc1 transferTo (acc2, 50) }
-      for (_ <- 1 to 2) { acc3 transferTo (acc1, 50) }
+      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
 
       while (bank.getProcessedTransactionsAsList.size != 8) {
         Thread.sleep(100)
@@ -177,15 +177,15 @@ class AccountTransferTests extends FunSuite {
 
   test("Test 12: Some transactions should be stopped with only one allowed attempt") {
     var failed = 0
-    for (_ <- 1 to 100) {
+    for (x <- 1 to 100) {
       val bank = new Bank(allowedAttempts = 1)
 
       val acc1 = new Account(bank, 100)
       val acc2 = new Account(bank, 100)
       val acc3 = new Account(bank, 100)
 
-      for (_ <- 1 to 6) { acc1 transferTo (acc2, 50) }
-      for (_ <- 1 to 2) { acc3 transferTo (acc1, 50) }
+      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
 
       while (bank.getProcessedTransactionsAsList.size != 8) {
         Thread.sleep(100)
@@ -197,3 +197,73 @@ class AccountTransferTests extends FunSuite {
   }
 
 }
+
+// TODO Delete this when done
+class LauriTests extends FunSuite {
+
+  test("Test 11 Redux - Strict rules, MANY ITERATIONS") {
+    val iterations = 100000
+    var failed = 0
+    for (x <- 1 to iterations) {
+      val bank = new Bank(allowedAttempts = 3)
+
+      val acc1 = new Account(bank, 100)
+      val acc2 = new Account(bank, 100)
+      val acc3 = new Account(bank, 100)
+
+      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
+
+      while (bank.getProcessedTransactionsAsList.size != 8) {
+        Thread.sleep(0)
+      }
+
+      if (x % 1000 == 0) println(x)
+
+      if (!(acc1.getBalanceAmount == 0
+        && acc2.getBalanceAmount == 300
+        && acc3.getBalanceAmount == 0)) {
+        println("failed on iteration: " + x)
+        for (t <- bank.getProcessedTransactionsAsList) println(t.status)
+        println("acc1: " + acc1.getBalanceAmount + " should be 0")
+        println("acc2: " + acc2.getBalanceAmount + " should be 300")
+        println("acc3: " + acc3.getBalanceAmount + " should be 0\n")
+        failed += 1
+      }
+    }
+    if (failed > 0) println("failure rate: " + failed / iterations.toFloat * 100.0 + "%")
+    assert(failed == 0)
+  }
+
+  test("Test 12 Redux - Strict rules, MANY ITERATIONS") {
+    val iterations = 100000
+    var failed = 0
+    for (x <- 1 to iterations) {
+      val bank = new Bank(allowedAttempts = 1)
+
+      val acc1 = new Account(bank, 100)
+      val acc2 = new Account(bank, 100)
+      val acc3 = new Account(bank, 100)
+
+      for (i <- 1 to 6) { acc1 transferTo (acc2, 50) }
+      for (j <- 1 to 2) { acc3 transferTo (acc1, 50) }
+
+      while (bank.getProcessedTransactionsAsList.size != 8) {
+        Thread.sleep(0)
+      }
+
+      if (x % 1000 == 0) println(x)
+
+      if (!(acc2.getBalanceAmount != 300 && acc3.getBalanceAmount == 0)) {
+        println("failed on iteration: " + x)
+        for (t <- bank.getProcessedTransactionsAsList) println(t.status)
+        println("acc2: " + acc2.getBalanceAmount + " should not be 300")
+        println("acc3: " + acc3.getBalanceAmount + " should be 0\n")
+        failed += 1
+      }
+    }
+    if (failed > 0) println("failure rate: " + failed / iterations.toFloat * 100.0 + "%")
+    assert(failed == 0)
+  }
+}
+
