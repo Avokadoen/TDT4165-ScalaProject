@@ -218,6 +218,8 @@ class LauriTests extends FunSuite {
         Thread.sleep(0)
       }
 
+      if (x % 1000 == 0) println(x)
+
       if (!(acc1.getBalanceAmount == 0
         && acc2.getBalanceAmount == 300
         && acc3.getBalanceAmount == 0)) {
@@ -249,6 +251,8 @@ class LauriTests extends FunSuite {
       while (bank.getProcessedTransactionsAsList.size != 8) {
         Thread.sleep(0)
       }
+
+      if (x % 1000 == 0) println(x)
 
       if (!(acc2.getBalanceAmount != 300 && acc3.getBalanceAmount == 0)) {
         println("failed on iteration: " + x)

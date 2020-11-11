@@ -58,7 +58,7 @@ class Transaction(val transactionsQueue: TransactionQueue,
         if (attempt < allowedAttempts) {
           attempt += 1
           doTransaction
-          Thread.sleep(1) // you might want this to make more room for
+          Thread.sleep(50) // you might want this to make more room for
           // new transactions to be added to the queue
         }
         else status = TransactionStatus.FAILED
